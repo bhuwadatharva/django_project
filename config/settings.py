@@ -1,15 +1,9 @@
-"""
-Django settings for Campaign Budget Monitoring & Alert System.
-"""
-
 from decimal import Decimal
 from pathlib import Path
 import environ
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Initialize environment variables
 env = environ.Env(
     DEBUG=(bool, False),
     ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1']),
@@ -20,14 +14,12 @@ env = environ.Env(
     ALERT_RECIPIENT_EMAIL=(str, 'ops@admonitoring.local'),
 )
 
-# Read .env if it exists
 environ.Env.read_env(BASE_DIR / '.env')
 
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-dev-key-change-in-prod')
 DEBUG = env('DEBUG')
 ALLOWED_HOSTS = env('ALLOWED_HOSTS')
 
-# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -35,11 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    # Third-party apps
     'rest_framework',
-
-    # Local apps
     'campaigns.apps.CampaignsConfig',
 ]
 
@@ -72,13 +60,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 DATABASES = {
     'default': env.db('DATABASE_URL')
 }
 
-# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -94,20 +79,21 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Django REST Framework configuration
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
     'DEFAULT_RENDERER_CLASSES': [
@@ -119,15 +105,12 @@ REST_FRAMEWORK = {
     ],
 }
 
-# Email & Notification Settings
 EMAIL_BACKEND = env('EMAIL_BACKEND')
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 ALERT_RECIPIENT_EMAIL = env('ALERT_RECIPIENT_EMAIL')
 
-# Campaign Monitoring Domain Settings
 ALERT_THRESHOLDS = [Decimal(t.strip()) for t in env.list('ALERT_THRESHOLDS')]
 
-# Structured Logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
